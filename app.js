@@ -1,120 +1,142 @@
-import { auth, db, storage } from "./firebase.js";
-import {  
-  createUserWithEmailAndPassword,  
-  signInWithEmailAndPassword,  
-  signOut  
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {  
-  ref, set, update, get  
+import { db } from "./firebase.js";
+import { ensureAuth, login, logout } from "./auth.js";
+import {
+  ref, get, set, update, push, onValue, onChildAdded
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-(function(){
-  const $ = s => document.querySelector(s);
-  const $$ = s => Array.from(document.querySelectorAll(s));
+// ---------- helpers ----------
+const $ = s => document.querySelector(s);
+const uidPath = uid => `users/${uid}`;
+const balRef = uid => ref(db, `${uidPath(uid)}/balance`);
+const txCol = uid => ref(db, `transactions/${uid}`);
+const tickerRef = ref(db, "ticker");
+const pairsRef = ref(db, "pairs");
 
-  if(location.pathname.endsWith("index.html") || location.pathname=="/" ){
-    const introSeen = sessionStorage.getItem("introSeen");
-    if(!introSeen){
-      const l = document.getElementById("global-loader");
-      l.classList.remove("hidden");
-      setTimeout(()=>{  
-        l.classList.add("hidden");  
-        sessionStorage.setItem("introSeen","1");  
-      }, 5000);
-    }
-  }
+// ---------- boot (auth anon to read/write automatically) ----------
+const user = await ensureAuth();
+const uid = user.uid;
 
-  $$("a[href$='.html']").forEach(a=>{
-    a.addEventListener("click", e=>{
-      const l = document.getElementById("global-loader");  
-      if(!l) return;
-      l.classList.remove("hidden");
-      setTimeout(()=>{}, 200);
+// ---------- seed (once) ----------
+async function seedOnce(){
+  const seeded = await get(ref(db,"meta/seeded"));
+  if(!seeded.exists()){
+    await set(pairsRef,{
+      "BTC_EGP": {name:"BTC/EGP", price:1582766, dir:"up"},
+      "ETH_EGP": {name:"ETH/EGP", price:376635, dir:"down"},
+      "USDT_EGP": {name:"USDT/EGP", price:30.00, dir:"up"},
+      "BNB_EGP": {name:"BNB/EGP", price:32463, dir:"down"}
     });
-  });
-
-  const dict = {
-    ar: {
-      home:"الرئيسية", payments:"سحب/إيداع", profile:"الملف", login:"دخول", lang:"EN",
-      balance_card_title:"الرصيد الحالي", profit_card_title:"أرباحك من التجارة",
-      actions_deposit:"إيداع", actions_withdraw:"سحب", actions_buy:"شراء", actions_sell:"بيع",
-      actions_trades:"صفقاتي", actions_spin:"سبين", actions_rewards:"مكافآتي",
-      earnings:"أرباح مستخدمين", orders:"عدد طلبات", view_all:"عرض الكل", market:"السوق"
-    },
-    en: {
-      home:"Home", payments:"Payments", profile:"Profile", login:"Login", lang:"AR",
-      balance_card_title:"Current Balance", profit_card_title:"Your Trading Profit",
-      actions_deposit:"Deposit", actions_withdraw:"Withdraw", actions_buy:"Buy", actions_sell:"Sell",
-      actions_trades:"My Trades", actions_spin:"Spin", actions_rewards:"Rewards",
-      earnings:"Users Earnings", orders:"Orders Count", view_all:"View All", market:"Market"
-    }
-  };
-
-  const langToggle = $("#langToggle");
-  if(langToggle){
-    langToggle.addEventListener("click", ()=>{
-      const current = document.body.getAttribute("lang") || "ar";
-      const next = current==="ar" ? "en" : "ar";
-      document.body.setAttribute("lang", next);
-      $$("[data-i18n]").forEach(el=>{
-        const key = el.getAttribute("data-i18n");
-        if(dict[next][key]) el.textContent = dict[next][key];
-      });
-      langToggle.textContent = dict[next].lang;
-    });
-  }
-})();
-
-// Firebase Functions
-export async function registerUser(email, password) {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
-    await set(ref(db, 'users/' + uid), {
-      email: email,
-      balance: 0,
-      role: "user"
-    });
-    alert("User Registered!");
-  } catch (error) {
-    alert("Error: " + error.message);
-  }
-}
-
-export async function loginUser(email, password) {
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    alert("Logged in!");
-  } catch (error) {
-    alert("Error: " + error.message);
-  }
-}
-
-export async function logoutUser() {
-  await signOut(auth);
-  alert("Logged out!");
-}
-
-export async function getUsersCount() {
-  const snapshot = await get(ref(db, 'users'));
-  if (snapshot.exists()) {
-    const users = snapshot.val();
-    return Object.keys(users).length;
-  }
-  return 0;
-}
-
-export async function sendProfit(uid, amount) {
-  const userRef = ref(db, 'users/' + uid);
-  const snapshot = await get(userRef);
-  if (snapshot.exists()) {
-    let currentBalance = snapshot.val().balance || 0;
-    await update(userRef, { balance: currentBalance + amount });
-    alert(`Profit sent: ${amount}`);
+    await set(ref(db,`${uidPath(uid)}`),{ balance:0, createdAt:Date.now() });
+    await set(ref(db,"meta/seeded"), true);
   } else {
-    alert("User not found");
+    // تأكد للمستخدم الحالي
+    const uSnap = await get(ref(db,uidPath(uid)));
+    if(!uSnap.exists()) await set(ref(db,uidPath(uid)),{ balance:0, createdAt:Date.now() });
   }
 }
+await seedOnce();
+
+// ---------- balance live ----------
+onValue(balRef(uid),(s)=>{
+  const v = s.exists()? s.val() : 0;
+  $("#balance").textContent = `EGP ${Number(v).toLocaleString("en-EG")}`;
+});
+
+// ---------- deposit / withdraw ----------
+$("#btnDeposit").addEventListener("click", async ()=>{
+  const a = Number(prompt("قيمة الإيداع بالجنيه:", "500"))||0;
+  if(a<=0) return;
+  const cur = (await get(balRef(uid))).val()||0;
+  await update(ref(db,uidPath(uid)),{ balance: cur + a });
+  await push(txCol(uid),{ type:"deposit", amount:a, at:Date.now() });
+});
+
+$("#btnWithdraw").addEventListener("click", async ()=>{
+  const a = Number(prompt("قيمة السحب بالجنيه:", "300"))||0;
+  if(a<=0) return;
+  const cur = (await get(balRef(uid))).val()||0;
+  if(a>cur) return alert("الرصيد غير كافٍ");
+  await update(ref(db,uidPath(uid)),{ balance: cur - a });
+  await push(txCol(uid),{ type:"withdraw", amount:a, at:Date.now() });
+});
+
+// ---------- login/logout demo (بسيط) ----------
+$("#loginBtn").addEventListener("click", async ()=>{
+  const email = prompt("Email:"); const pass = prompt("Password:");
+  if(!email||!pass) return;
+  try{
+    await login(email,pass);
+    alert("تم تسجيل الدخول");
+    $("#loginBtn").style.display="none"; $("#logoutBtn").style.display="inline-block";
+  }catch{ alert("فشل الدخول"); }
+});
+$("#logoutBtn").addEventListener("click", async ()=>{
+  await logout(); location.reload();
+});
+
+// ---------- ticker (أسماء ومبالغ عشوائية) ----------
+const names = ["Ahmed","Youssef","Nour","Salma","Hossam","Omar","Mariam","Khaled","Hagar","Mostafa","Rana","Fares","Ali","Nada","Yara","Ziad"];
+function randAmount(){
+  const list = [1500,1650,1800,4613,6182,2440,5030,7921,3310,2845,1999,7250,4150,3666,9810];
+  return list[Math.floor(Math.random()*list.length)];
+}
+function randRow(){
+  const n = names[Math.floor(Math.random()*names.length)];
+  const act = Math.random()>.5 ? "شراء" : "بيع";
+  return { text:`${n} ${act} ${randAmount().toLocaleString("en-EG")} جنيه`, at:Date.now() };
+}
+// املأ تلقائيًا إن فاضي
+(async ()=>{
+  const snap = await get(tickerRef);
+  if(!snap.exists()) for(let i=0;i<12;i++) await push(tickerRef, randRow());
+})();
+onChildAdded(tickerRef,(s)=>{
+  const el = document.createElement("span");
+  el.textContent = s.val().text;
+  $("#tickerLane").appendChild(el);
+});
+
+// ---------- market pairs (4 أزواج متحركة من القاعدة) ----------
+function drawPairs(obj){
+  const host = $("#pairs"); host.innerHTML="";
+  Object.entries(obj||{}).forEach(([k,v])=>{
+    const d = document.createElement("div");
+    d.className = "pair";
+    d.innerHTML = `
+      <div>
+        <div class="title">${v.name}</div>
+        <div class="sub ${v.dir==='up'?'up':'down'}">${v.dir==='up'?'▲':'▼'} ${v.price}</div>
+      </div>
+      <div class="row">
+        <button class="chip buy" data-k="${k}">شراء</button>
+        <button class="chip sell" data-k="${k}">بيع</button>
+      </div>`;
+    host.appendChild(d);
+  });
+}
+onValue(pairsRef,(s)=> drawPairs(s.val()||{}));
+
+// شراء/بيع بسيط يخصم/يزود الرصيد
+document.addEventListener("click", async (e)=>{
+  if(e.target.matches(".buy,.sell")){
+    const k = e.target.getAttribute("data-k");
+    const amt = Number(prompt(`المبلغ بالجنيه (${e.target.classList.contains('buy')?'شراء':'بيع'}) :`, "1000"))||0;
+    if(amt<=0) return;
+    const cur = (await get(balRef(uid))).val()||0;
+    const isBuy = e.target.classList.contains("buy");
+    const nb = isBuy ? cur - amt : cur + amt;
+    if(isBuy && nb<0) return alert("الرصيد غير كافٍ");
+    await update(ref(db,uidPath(uid)),{ balance: nb });
+    await push(txCol(uid),{ type:isBuy?"buy":"sell", pair:k, amount:amt, at:Date.now() });
+  }
+});
+
+// روابط تجريبية
+$("#goSpin").addEventListener("click", ()=> location.href="./spin.html");
+$("#goProfile").addEventListener("click", ()=> location.href="./profile.html");
+$("#goBuy").addEventListener("click", ()=> alert("واجهة الشراء التفصيلية لاحقًا"));
+$("#goSell").addEventListener("click", ()=> alert("واجهة البيع التفصيلية لاحقًا"));
+    
 
 export async function setCurrencyPrice(symbol, price) {
   await set(ref(db, 'currencies/' + symbol), {
