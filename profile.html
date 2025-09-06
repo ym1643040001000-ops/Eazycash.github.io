@@ -67,5 +67,21 @@
     <a href="profile.html" class="nav-item" data-i18n="profile">الملف</a>
   </footer>
   <div id="toast"></div>
+  <script type="module">
+  import { auth } from "./firebase.js";
+  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html"; // لو مش مسجل دخول
+    }
+  });
+  function logout() {
+    signOut(auth).then(() => {
+      window.location.href = "login.html";
+    });
+  }
+  </script>
+  
 </body>
 </html>
