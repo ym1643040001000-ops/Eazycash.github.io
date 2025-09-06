@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Eazy Cash PRO</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <script defer src="data.js"></script>
-  <script defer src="app.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الصفحة الرئيسية - Eazy Cash</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="global-loader" class="loader hidden">
-    <div class="logo-pulse">
-      <div class="coin"></div>
-      <div class="coin delay"></div>
-      <div class="coin delay2"></div>
-      <div class="brand">
-        <div class="en">Eazy Cash</div>
-        <div class="ar">إيزي كاش</div>
-      </div>
+  <section class="balance-card">
+    <h2>💳 الرصيد الحالي</h2>
+    <p>5000 EGP</p>
+    <h3>📈 أرباحك من التجارة: 1200 EGP</h3>
+  </section>
+  
+  <section class="actions">
+    <a href="deposit.html" class="btn">⬆️ إيداع</a>
+    <a href="withdraw.html" class="btn">⬇️ سحب</a>
+    <a href="trades.html" class="btn">📊 صفقاتي</a>
+  </section>
+
+  <section class="coins">
+    <h2>أسعار العملات</h2>
+    <div class="coin">
+      <span>💲 BTC</span>
+      <span class="up">+ 250,000 EGP</span>
+      <span>شراء: 249,000</span>
+      <span>بيع: 251,000</span>
     </div>
-  </div>
-
-  <header class="app-header">
-    <div class="brand-glow">💸 <span>EazyCash</span></div>
-    <div class="header-actions">
-      <button id="langToggle" class="chip" data-i18n="lang">AR</button>
-      <a class="chip ghost" href="login.html" data-i18n="login">Login</a>
+    <div class="coin">
+      <span>💲 ETH</span>
+      <span class="down">- 15,000 EGP</span>
+      <span>شراء: 14,800</span>
+      <span>بيع: 15,200</span>
     </div>
-  </header>
-
-  <nav class="ticker" id="liveTicker"></nav>
-
-  <nav class="main-nav">
-    <a href="index.html">الرئيسية</a> |
-    <a href="login.html">تسجيل الدخول</a> |
-    <
-      
+    <div class="coin">
+      <span>💲 USDT</span>
+      <span class="up">+ 30 EGP</span>
+      <span>شراء: 29.5</span>
+      <span>بيع: 30.5</span>
+    </div>
+  </section>
+</body>
+</html>
