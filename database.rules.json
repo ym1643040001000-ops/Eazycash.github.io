@@ -1,0 +1,38 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid || root.child('admins/'+auth.uid).val() === true"
+      }
+    },
+    "transactions": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid || root.child('admins/'+auth.uid).val() === true"
+      }
+    },
+    "orders": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "prices": { ".read": true, ".write": "root.child('admins/'+auth.uid).val() === true" }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+يمكن أن تصدر عن ChatGPT بعض الأخطاء. لذلك يجب التحقق من المعلومات المهمة
