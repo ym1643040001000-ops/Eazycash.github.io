@@ -1,45 +1,109 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eazy Cash</title>
-  <link rel="stylesheet" href="styles.css">
-  <script defer src="data.js"></script>
-  <script defer src="app.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Eazy Cash PRO</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth.js"></script>
+  <script type="module" src="app.js"></script>
 </head>
 <body>
-  <div id="global-loader" class="loader hidden">
-    <div class="logo-pulse">
-      <div class="coin"></div>
-      <div class="coin delay"></div>
-      <div class="coin delay2"></div>
-      <div class="brand">
-        <div class="en">Eazy Cash</div>
-        <div class="ar">إيزي كاش</div>
-      </div>
+<div id="global-loader" class="loader hidden">
+  <div class="logo-pulse">
+    <div class="coin"></div>
+    <div class="coin delay"></div>
+    <div class="coin delay2"></div>
+    <div class="brand">
+      <div class="en">Eazy Cash</div>
+      <div class="ar">إيزي كاش</div>
     </div>
   </div>
+</div>
 
-  <header class="app-header">
-    <div class="brand-glow">💸 <span>EazyCash</span></div>
-    <div class="header-actions">
-      <button id="langToggle" class="chip" data-i18n="lang">AR</button>
-      <a class="chip ghost" href="login.html" data-i18n="login">Login</a>
-    </div>
-  </header>
+<header class="app-header">
+  <div class="brand-glow">💸 <span>EazyCash</span></div>
+  <div class="header-actions">
+    <button id="langToggle" class="chip" data-i18n="lang">AR</button>
+    <a class="chip ghost" href="login.html" data-i18n="login">Login</a>
+  </div>
+</header>
 
-  <nav class="ticker" id="liveTicker"></nav>
+<nav class="ticker" id="liveTicker"></nav>
 
-  <nav class="main-nav">
-    <a href="index.html">الرئيسية</a> |
-    <a href="login.html">تسجيل الدخول</a> |
-    <a href="market.html">المتجر</a> |
-    <a href="leaderboard.html">الترتيب</a> |
-    <a href="payments.html">المدفوعات</a> |
-    <a href="deposit.html">الإيداع</a> |
-    <a href="buy.html">شراء</a> |
-    <a href="admin.html">لوحة التحكم</a>
-  </nav>
+<main class="container">
+  <h2>الحساب البنكي</h2>
+  <div class="card center">
+    <div class="title">رصيدك الحالي</div>
+    <div id="userBalance" class="chip big">EGP 0</div>
+  </div>
+
+  <h3 class="mt-3">السوق</h3>
+  <div id="marketPairs" class="grid"></div>
+</main>
+
+<footer class="bottom-nav">
+  <a href="index.html" class="nav-item" data-i18n="home">الرئيسية</a>
+  <a href="market.html" class="nav-item">BUY / MKT</a>
+  <a href="payments.html" class="nav-item" data-i18n="payments">سحب/إيداع</a>
+  <a href="profile.html" class="nav-item" data-i18n="profile">الملف</a>
+</footer>
+<div id="toast"></div>
+
+<script type="module">
+  import { db, auth } from "./firebase.js";
+  import { ref, get } from "firebase/database";
+  import { onAuthStateChanged } from "firebase/auth";
+
+  const balanceEl = document.getElementById("userBalance");
+  const tickerEl = document.getElementById("liveTicker");
+  const marketEl = document.getElementById("marketPairs");
+
+  const names = ["Ahmed Mohamed", "Omar Ali", "Sara Mostafa", "Youssef Ibrahim", "Mona Hassan", "Khaled Said"];
+  const actions = ["شراء", "بيع"];
+
+  function randomTicker() {
+    const name = names[Math.floor(Math.random() * names.length)];
+    const action = actions[Math.floor(Math.random() * actions.length)];
+    const amount = Math.floor(Math.random() * 5000) + 1000;
+    return `${name} ${action} ${amount} جنيه`;
+  }
+
+  setInterval(() => {
+    tickerEl.textContent = randomTicker();
+  }, 3000);
+
+  function renderMarket() {
+    const pairs = [["BTC","ETH"],["BNB","USDT"],["SOL","XRP"],["ADA","DOGE"]];
+    marketEl.innerHTML = "";
+    pairs.forEach(p=>{
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `<div class="flex justify-between">
+        <div>${p[0]} / ${p[1]}</div>
+        <div class="chip">⬆️ ${Math.floor(Math.random()*1000)} EGP</div>
+      </div>`;
+      marketEl.appendChild(div);
+    });
+  }
+  renderMarket();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const snapshot = await get(ref(db, "users/" + user.uid));
+      if(snapshot.exists()){
+        const data = snapshot.val();
+        balanceEl.textContent = "EGP " + data.balance;
+      }
+    } else {
+      balanceEl.textContent = "EGP 0";
+    }
+  });
+</script>
 </body>
-</html>
+  </html>
+  
