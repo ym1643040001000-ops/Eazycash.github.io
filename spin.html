@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Eazy Cash PRO</title>
+  <link rel="stylesheet" href="assets/css/styles.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script defer src="assets/js/data.js"></script>
+  <script defer src="assets/js/app.js"></script>
+</head>
+<body>
+<div id="global-loader" class="loader hidden">
+  <div class="logo-pulse">
+    <div class="coin"></div>
+    <div class="coin delay"></div>
+    <div class="coin delay2"></div>
+    <div class="brand">
+      <div class="en">Eazy Cash</div>
+      <div class="ar">إيزي كاش</div>
+    </div>
+  </div>
+</div>
+<header class="app-header">
+  <div class="brand-glow">💸 <span>EazyCash</span></div>
+  <div class="header-actions">
+    <button id="langToggle" class="chip" data-i18n="lang">AR</button>
+    <a class="chip ghost" href="login.html" data-i18n="login">Login</a>
+  </div>
+</header>
+<nav class="ticker" id="liveTicker"></nav>
+
+<main class="container">
+  <h2>Daily Spin</h2>
+  <div class="card center">
+    <div class="title">1 spin / 24h</div>
+    <button class="btn" onclick="showToast('🎉 You won 200 EGP!')">Spin</button>
+    <div class="subtext mt-2">or: Better luck next time</div>
+  </div>
+</main>
+
+<footer class="bottom-nav">
+  <a href="index.html" class="nav-item" data-i18n="home">الرئيسية</a>
+  <a href="market.html" class="nav-item">BUY / MKT</a>
+  <a href="payments.html" class="nav-item" data-i18n="payments">سحب/إيداع</a>
+  <a href="profile.html" class="nav-item" data-i18n="profile">الملف</a>
+</footer>
+<div id="toast"></div>
+</body>
+</html>
