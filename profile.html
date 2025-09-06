@@ -1,87 +1,26 @@
-<!doctype html>
-<html lang="en" dir="ltr">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Eazy Cash PRO - Profile</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <script defer src="data.js"></script>
-  <script defer src="app.js"></script>
-</head>
-<body>
-  <div id="global-loader" class="loader hidden">
-    <div class="logo-pulse">
-      <div class="coin"></div>
-      <div class="coin delay"></div>
-      <div class="coin delay2"></div>
-      <div class="brand">
-        <div class="en">Eazy Cash</div>
-        <div class="ar">إيزي كاش</div>
-      </div>
-    </div>
-  </div>
+import { db } from './firebase.js';
+import { ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  <header class="app-header">
-    <div class="brand-glow">💸 <span>EazyCash</span></div>
-    <div class="header-actions">
-      <button id="langToggle" class="chip" data-i18n="lang">AR</button>
-      <a class="chip ghost" href="login.html" data-i18n="login">Login</a>
-    </div>
-  </header>
+export function loadProfile(user){
+  document.getElementById('userEmail').textContent = user.email || 'مستخدم';
+  document.getElementById('userId').textContent    = `ID: ${user.uid.slice(0,8)}…`;
+  const link = `${location.origin}/join?ref=${user.uid}`;
+  document.getElementById('refLink').textContent = link;
 
-  <nav class="ticker" id="liveTicker"></nav>
-
-  <main class="container">
-    <h2>Profile</h2>
-    <div class="card">
-      <div class="flex justify-between">
-        <div>
-          <div class="title">Ahmed Mohamed</div>
-          <div class="subtext">ID: #EAZ-20451</div>
-        </div>
-        <div class="chip">EGP 12,540</div>
-      </div>
-      <div class="mt-2">
-        <div class="subtext">Referral Link</div>
-        <div class="card" style="margin-top:6px">https://eazy.cash/join?ref=EAZ-20451</div>
-      </div>
-    </div>
-
-    <h3 class="mt-3">Deposits / Withdrawals</h3>
-    <table class="table">
-      <thead><tr><th>Type</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
-      <tbody>
-        <tr><td>Deposit</td><td>500</td><td>2025-09-05</td><td>✅</td></tr>
-        <tr><td>Withdraw</td><td>300</td><td>2025-09-04</td><td>⏳</td></tr>
-      </tbody>
-    </table>
-  </main>
-
-  <footer class="bottom-nav">
-    <a href="index.html" class="nav-item" data-i18n="home">الرئيسية</a>
-    <a href="market.html" class="nav-item">BUY / MKT</a>
-    <a href="payments.html" class="nav-item" data-i18n="payments">سحب/إيداع</a>
-    <a href="profile.html" class="nav-item" data-i18n="profile">الملف</a>
-  </footer>
-  <div id="toast"></div>
-  <script type="module">
-  import { auth } from "./firebase.js";
-  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "login.html"; // لو مش مسجل دخول
-    }
+  onValue(ref(db, `users/${user.uid}/balance`),(s)=>{
+    const v = s.exists()? s.val():0;
+    document.getElementById('userBalance').textContent = `${Number(v).toLocaleString('ar-EG')} EGP`;
   });
-  function logout() {
-    signOut(auth).then(() => {
-      window.location.href = "login.html";
+
+  const tbody = document.querySelector('#txTable tbody');
+  onValue(ref(db, `transactions/${user.uid}`),(s)=>{
+    tbody.innerHTML='';
+    if(!s.exists()) return;
+    const rows = Object.values(s.val()).sort((a,b)=>b.ts-a.ts).slice(0,30);
+    rows.forEach(t=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${t.type==='DEPOSIT'?'إيداع':'سحب'}</td><td>${Number(t.amount).toLocaleString('ar-EG')}</td><td>${new Date(t.ts).toLocaleString('ar-EG')}</td><td>${t.status}</td>`;
+      tbody.appendChild(tr);
     });
-  }
-  </script>
-  
-</body>
-</html>
+  });
+}
