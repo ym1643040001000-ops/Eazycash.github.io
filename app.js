@@ -1,12 +1,12 @@
 import { auth, db } from "./firebase.js";
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut 
-} from "firebase/auth";
-import { 
-  ref, set, update, get 
-} from "firebase/database";
+import {  
+  createUserWithEmailAndPassword,  
+  signInWithEmailAndPassword,  
+  signOut  
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {  
+  ref, set, update, get  
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 (function(){
   const $ = s => document.querySelector(s);
@@ -17,16 +17,16 @@ import {
     if(!introSeen){
       const l = document.getElementById("global-loader");
       l.classList.remove("hidden");
-      setTimeout(()=>{ 
-        l.classList.add("hidden"); 
-        sessionStorage.setItem("introSeen","1"); 
+      setTimeout(()=>{  
+        l.classList.add("hidden");  
+        sessionStorage.setItem("introSeen","1");  
       }, 5000);
     }
   }
 
   $$("a[href$='.html']").forEach(a=>{
     a.addEventListener("click", e=>{
-      const l = document.getElementById("global-loader"); 
+      const l = document.getElementById("global-loader");  
       if(!l) return;
       l.classList.remove("hidden");
       setTimeout(()=>{}, 200);
@@ -129,4 +129,5 @@ export async function getCurrencyPrice(symbol) {
     return snapshot.val().price;
   }
   return null;
-}
+    }
+    
