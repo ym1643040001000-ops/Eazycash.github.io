@@ -1,51 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eazy Cash</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <script defer src="firebase.js"></script>
-  <script defer src="auth.js"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Eazy Cash — الرئيسية</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <header>
-    <h1>💸 Eazy Cash</h1>
-    <nav>
-      <a href="index.html">الرئيسية</a>
-      <a href="wallet.html">المحفظة</a>
+  <header class="app-header">
+    <div class="brand">💸 EazyCash</div>
+    <nav class="top-nav">
       <a href="market.html">السوق</a>
-      <a href="profile.html">الملف الشخصي</a>
+      <a href="wallet.html">المدفوعات</a>
+      <a href="profile.html">الملف</a>
+      <button id="logoutBtn" class="chip">خروج</button>
     </nav>
   </header>
 
-  <main>
-    <section class="assets-card">
-      <h2>إجمالي الأصول</h2>
-      <div id="total-balance">0 جنيه</div>
-      <div class="actions">
-        <button>إيداع</button>
-        <button>سحب</button>
-        <button>تحويل</button>
-        <button>تحويل عملة</button>
+  <main class="container">
+    <section class="card big">
+      <div>
+        <div class="muted">رصيدك الحالي</div>
+        <div id="totalBalance" class="big-num">0.00 جنيه</div>
+      </div>
+      <div class="row gap">
+        <a class="btn" href="wallet.html#deposit">إيداع</a>
+        <a class="btn ghost" href="wallet.html#withdraw">سحب</a>
       </div>
     </section>
 
-    <section class="ticker">
-      <marquee id="liveTicker"></marquee>
+    <section class="card">
+      <div class="title">الشريط المباشر</div>
+      <div id="ticker" class="ticker"></div>
     </section>
 
-    <section class="markets">
-      <h3>أزواج العملات</h3>
-      <div id="pairs"></div>
+    <section class="card">
+      <div class="title">أزواج مختارة</div>
+      <div id="pairsGrid" class="grid grid-2"></div>
+      <div class="center mt-2"><a class="chip" href="market.html">عرض السوق بالكامل</a></div>
     </section>
   </main>
 
-  <footer>
-    <a href="index.html">الرئيسية</a>
+  <footer class="bottom-nav">
+    <a href="index.html" class="active">الرئيسية</a>
     <a href="market.html">السوق</a>
-    <a href="wallet.html">المحفظة</a>
+    <a href="wallet.html">المدفوعات</a>
     <a href="profile.html">الملف</a>
   </footer>
+
+  <script type="module">
+    import { onAuth, logout } from './auth.js';
+    import { loadHome } from './home.js';
+    document.getElementById('logoutBtn').onclick = logout;
+    onAuth(async (user) => {
+      if(!user) location.href = 'login.html';
+      else loadHome(user);
+    });
+  </script>
 </body>
-</html>
+        </html>
+        
