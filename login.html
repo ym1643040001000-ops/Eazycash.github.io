@@ -1,23 +1,112 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Login - Eazy Cash PRO</title>
-  <link rel="stylesheet" href="assets/css/styles.css"/>
+  <title>Eazy Cash - تسجيل الدخول</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOGHBrIW5aLPyhqC6fbmbglRdOhWv0XXU",
+      authDomain: "eazy-cash-8c5fa.firebaseapp.com",
+      databaseURL: "https://eazy-cash-8c5fa-default-rtdb.firebaseio.com",
+      projectId: "eazy-cash-8c5fa",
+      storageBucket: "eazy-cash-8c5fa.appspot.com",
+      messagingSenderId: "693700754830",
+      appId: "1:693700754830:web:2eb64b511ecc7d325338df"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("loginBtn").addEventListener("click", async () => {
+        const email = document.getElementById("email").value;
+        const pass = document.getElementById("password").value;
+        try {
+          await signInWithEmailAndPassword(auth, email, pass);
+          window.location.href = "home.html";
+        } catch (e) {
+          alert("خطأ: " + e.message);
+        }
+      });
+
+      document.getElementById("googleBtn").addEventListener("click", async () => {
+        try {
+          await signInWithPopup(auth, provider);
+          window.location.href = "home.html";
+        } catch (e) {
+          alert("خطأ Google: " + e.message);
+        }
+      });
+
+      document.getElementById("registerBtn").addEventListener("click", () => {
+        window.location.href = "register.html";
+      });
+    });
+  </script>
+  <style>
+    body {
+      margin:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      background:linear-gradient(135deg,#0f0f1a,#1a1a2e);
+      font-family:'Inter',sans-serif;
+      color:#fff;
+    }
+    .card {
+      background:#1e1e2f;
+      padding:20px;
+      border-radius:16px;
+      width:90%;
+      max-width:380px;
+      box-shadow:0 0 25px rgba(0,0,0,0.5);
+      text-align:center;
+    }
+    .input {
+      width:100%;
+      padding:12px;
+      margin:10px 0;
+      border:none;
+      border-radius:8px;
+      font-size:14px;
+    }
+    .btn {
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+      border:none;
+      border-radius:8px;
+      background:#ffd700;
+      color:#000;
+      font-weight:600;
+      cursor:pointer;
+      transition:0.3s;
+    }
+    .btn:hover { background:#ffcc00; }
+    .link {
+      display:block;
+      margin-top:12px;
+      color:#ffd700;
+      cursor:pointer;
+      font-size:14px;
+    }
+  </style>
 </head>
 <body>
-  <main class="container">
-    <h2>Login / Register</h2>
-    <div class="card">
-      <input type="email" id="email" placeholder="Email" class="input"/>
-      <input type="password" id="password" placeholder="Password" class="input mt-2"/>
-      <button id="loginBtn" class="btn mt-2">Login</button>
-      <button id="registerBtn" class="btn ghost mt-2">Register</button>
-    </div>
-  </main>
-
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="auth.js"></script>
+  <div class="card">
+    <h2>تسجيل الدخول</h2>
+    <input id="email" class="input" type="email" placeholder="البريد الإلكتروني"/>
+    <input id="password" class="input" type="password" placeholder="كلمة المرور"/>
+    <button class="btn" id="loginBtn">تسجيل الدخول</button>
+    <button class="btn" id="googleBtn">الدخول بحساب Google</button>
+    <span id="registerBtn" class="link">إنشاء حساب جديد</span>
+  </div>
 </body>
 </html>
