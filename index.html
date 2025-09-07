@@ -1,74 +1,25 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Eazy Cash</title>
+  <meta charset="UTF-8">
+  <title>Eazy Cash - تسجيل</title>
   <style>
-    :root{--bg:#0b0f15;--card:#0e131b;--muted:#9aa6b2;--text:#e6edf6;--pri:#62f2a1;--acc:#7bd7ff;--danger:#ff6b6b;}
-    *{box-sizing:border-box}html,body{margin:0;background:radial-gradient(900px 560px at 80% -10%,rgba(98,242,161,.07),transparent),linear-gradient(180deg,#0b0f15,#0a0e14 40%);color:var(--text);font-family:Inter,system-ui,Arial}
-    a{color:inherit;text-decoration:none}.container{max-width:1100px;margin:0 auto;padding:16px}
-    .hdr{position:sticky;top:0;z-index:30;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(11,15,21,.7);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06)}
-    .brand{font-weight:800;letter-spacing:.3px;display:flex;gap:8px;align-items:center}
-    .chip{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--text);padding:8px 12px;border-radius:999px}
-    .grid{display:grid;gap:12px}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:14px}
-    .title{opacity:.9;font-weight:700;margin-bottom:6px}.sub{font-size:12px;color:var(--muted)}
-    .balance{display:flex;justify-content:space-between;align-items:center;padding:18px;border-radius:22px;background:radial-gradient(600px 200px at 0% 0%,rgba(98,242,161,.08),transparent),linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1)}
-    .big{font-size:30px;font-weight:900;letter-spacing:.6px}.btn{background:linear-gradient(90deg,var(--pri),var(--acc));color:#02120b;border:none;padding:10px 14px;border-radius:12px;font-weight:800}
-    .row{display:flex;gap:10px;align-items:center}.grow{flex:1}
-    #ticker{position:sticky;top:56px;background:rgba(0,0,0,.35);backdrop-filter:blur(6px);white-space:nowrap;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.06)}
-    #ticker .lane{display:inline-block;padding:8px 0;animation:mar 22s linear infinite}
-    #ticker span{display:inline-block;padding:0 20px;opacity:.95}
-    @keyframes mar{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
-    .pair{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.02)}
-    .up{color:var(--pri)}.down{color:var(--danger)}
-    .nav{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:rgba(11,15,21,.85);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.08)}
-    .nav a{padding:12px 8px;text-align:center;border-inline-start:1px solid rgba(255,255,255,.04)}.nav a:first-child{border:0}
+    body {background:#121212; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; font-family:tahoma;}
+    .box {background:#1e1e1e; padding:30px; border-radius:12px; width:300px; text-align:center;}
+    input {width:100%; padding:10px; margin:5px 0; border-radius:8px; border:none;}
+    button {padding:10px; border:none; border-radius:8px; background:#f39c12; color:#fff; cursor:pointer; width:100%;}
   </style>
-  <script type="module" src="./app.js"></script>
 </head>
 <body>
-  <header class="hdr">
-    <div class="brand">💸 <span>EazyCash</span></div>
-    <div class="row">
-      <button id="loginBtn" class="chip">تسجيل</button>
-      <button id="logoutBtn" class="chip" style="display:none">خروج</button>
-    </div>
-  </header>
+  <div class="box">
+    <h2>تسجيل دخول / حساب جديد</h2>
+    <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <input type="password" id="password" placeholder="كلمة السر">
+    <button onclick="login()">تسجيل دخول</button>
+    <button onclick="signup()">حساب جديد</button>
+  </div>
 
-  <nav id="ticker"><div class="lane" id="tickerLane"></div></nav>
-
-  <main class="container">
-    <section class="balance">
-      <div>
-        <div class="sub">رصيدك الحالي</div>
-        <div class="big" id="balance">EGP —</div>
-      </div>
-      <div class="row">
-        <button id="btnDeposit" class="btn">إيداع</button>
-        <button id="btnWithdraw" class="chip">سحب</button>
-      </div>
-    </section>
-
-    <section class="card" style="margin-top:14px">
-      <div class="title">أزواج السوق</div>
-      <div class="grid grid-2" id="pairs"></div>
-    </section>
-
-    <section class="grid grid-4" style="margin-top:14px">
-      <button class="card btn" id="goBuy">شراء</button>
-      <button class="card chip" id="goSell">بيع</button>
-      <button class="card chip" id="goSpin">Spin</button>
-      <button class="card chip" id="goProfile">الملف</button>
-    </section>
-  </main>
-
-  <footer class="nav">
-    <a href="./index.html">الرئيسية</a>
-    <a href="./market.html">السوق</a>
-    <a href="./payments.html">المدفوعات</a>
-    <a href="./profile.html">الملف</a>
-  </footer>
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth.js"></script>
 </body>
 </html>
