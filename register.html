@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Eazy Cash - إنشاء حساب</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOGHBrIW5aLPyhqC6fbmbglRdOhWv0XXU",
+      authDomain: "eazy-cash-8c5fa.firebaseapp.com",
+      databaseURL: "https://eazy-cash-8c5fa-default-rtdb.firebaseio.com",
+      projectId: "eazy-cash-8c5fa",
+      storageBucket: "eazy-cash-8c5fa.appspot.com",
+      messagingSenderId: "693700754830",
+      appId: "1:693700754830:web:2eb64b511ecc7d325338df"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("registerBtn").addEventListener("click", async () => {
+        const name = document.getElementById("name").value;
+        const phone = document.getElementById("phone").value;
+        const email = document.getElementById("email").value;
+        const pass = document.getElementById("password").value;
+        const agree = document.getElementById("agree").checked;
+
+        if (!agree) {
+          alert("يجب الموافقة على الشروط والأحكام");
+          return;
+        }
+
+        try {
+          const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+          const uid = userCred.user.uid;
+
+          await set(ref(db, "users/" + uid), {
+            name: name,
+            phone: phone,
+            email: email,
+            balance: 0
+          });
+
+          window.location.href = "home.html";
+        } catch (e) {
+          alert("خطأ: " + e.message);
+        }
+      });
+    });
+  </
+    
