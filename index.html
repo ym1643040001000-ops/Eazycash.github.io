@@ -3,91 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eazy Cash - استثمر بذكاء</title>
-  <style>
-    body {
-      margin:0; padding:0; font-family:'Tahoma', sans-serif;
-      height:100vh; display:flex; align-items:center; justify-content:center;
-      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-      background-size:400% 400%;
-      animation: gradientMove 12s ease infinite;
-      color:#fff; overflow:hidden;
-    }
-    @keyframes gradientMove {
-      0%{background-position:0% 50%}
-      50%{background-position:100% 50%}
-      100%{background-position:0% 50%}
-    }
-    .splash {
-      position:absolute; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      background:rgba(0,0,0,0.9);
-      z-index:9999; flex-direction:column;
-      animation:fadeOut 1s ease forwards;
-      animation-delay:2.8s; /* splash time */
-    }
-    @keyframes fadeOut {
-      to {opacity:0; visibility:hidden;}
-    }
-    .splash .logo {
-      font-size:48px; font-weight:bold;
-      color:#f39c12;
-      text-shadow:0 0 20px #f39c12,0 0 40px #f1c40f;
-      animation:pulse 1.5s infinite alternate;
-    }
-    @keyframes pulse {
-      from {transform:scale(1);}
-      to {transform:scale(1.1);}
-    }
-    .card {
-      background: rgba(0,0,0,0.6);
-      padding:40px;
-      border-radius:20px;
-      box-shadow:0 0 25px rgba(243,156,18,0.7);
-      text-align:center;
-      width:350px;
-      animation: fadeIn 1.5s ease;
-    }
-    @keyframes fadeIn {
-      from {opacity:0; transform:translateY(20px);}
-      to {opacity:1; transform:translateY(0);}
-    }
-    h1 { font-size:24px; margin-bottom:15px; color:#f39c12; }
-    input {
-      width:100%; padding:12px; margin:10px 0;
-      border:none; border-radius:10px;
-      font-size:15px;
-    }
-    button {
-      width:100%; padding:12px; margin:10px 0;
-      border:none; border-radius:10px;
-      font-size:16px; font-weight:bold;
-      background:#f39c12; color:#fff;
-      cursor:pointer; transition:0.3s;
-      box-shadow:0 0 10px #f39c12;
-    }
-    button:hover { background:#e67e22; box-shadow:0 0 20px #e67e22; }
-    .brand { font-size:28px; margin-bottom:20px; font-weight:bold; text-shadow:0 0 15px #f39c12; }
-  </style>
+  <title>Eazy Cash - تسجيل الدخول</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Splash Intro -->
-  <div class="splash">
-    <div class="logo">💸 Eazy Cash</div>
-  </div>
+  <div class="auth-container">
+    <h1>Eazy Cash 💸</h1>
+    <p>تسجيل دخول / إنشاء حساب</p>
 
-  <!-- Login/Register -->
-  <div class="card">
-    <div class="brand">💸 Eazy Cash</div>
-    <h1>تسجيل دخول / حساب جديد</h1>
-    <input type="email" id="email" placeholder="البريد الإلكتروني">
-    <input type="password" id="password" placeholder="كلمة السر">
-    <button onclick="login()">تسجيل دخول</button>
-    <button onclick="signup()">إنشاء حساب</button>
+    <input type="email" id="email" placeholder="الإيميل" />
+    <input type="password" id="password" placeholder="كلمة السر" />
+
+    <button id="loginBtn">تسجيل دخول</button>
+    <button id="registerBtn">إنشاء حساب</button>
+    <button id="googleBtn" class="google">تسجيل بجوجل</button>
   </div>
 
   <script type="module" src="firebase.js"></script>
   <script type="module" src="auth.js"></script>
 </body>
-    </html>
-    
+</html>
